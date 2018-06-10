@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../css/bootstrap.min.css">
+		<link rel="stylesheet" href="../css/font-awesome.min.css">
+		<style>
+			body {background-color: #eceeef} ;
+		</style>
+		<!-- Optional theme -->
+	
+		<!-- Latest compiled and minified JavaScript -->
+
+		<script src='../js/jquery.min.js'></script>
+	    <script src="../js/bootstrap.min.js"></script>
+        <script src='../js/angular.min.js'></script>
+        <script src='../js/angular-sanitize.min.js'></script>
+        <script src='../js/ng-file-upload.min.js'></script>
+        <script src='../js/ng-file-upload-shim.min.js'></script>
+        <script src='../js/ng-infinite-scroll.min.js'></script>
+
+		<title>Pixi: Share the $LOVE$</title>
+	</head>
+	<body ng-app='pixi'  ng-controller='pixiAboutController'>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-5">
+					<a href="/"><img src="/images/pixi_logo.png"></a>
+				</div>
+				<div class="col-md-7">
+					<br><br><br>
+					
+				
+							<ul class="nav nav-pills nav-fill justify-content-end" data-ng-init="user_info();">
+								<li class="nav-item"> <a class="nav-link active bg-info" href='/about'>About <i class="fa fa-cogs" aria-hidden="true"></i> </span></a></li>
+				                <li class="nav-item" ><a class="nav-link" href='/pixi'>Share Pictures <i class="fa fa-bullhorn" aria-hidden="true"></i></a></li>
+								<li class="nav-item"><a class="nav-link" href='/profile/{{ user._id }}' >My Profile <i class="fa fa-user-circle" aria-hidden="true"></i> </a></li>
+				                <li class="nav-item"><a class="nav-link" href='/logout'>Logout <i class="fa fa-sign-out" aria-hidden="true"></i> </a></li> 
+				                <li class="nav=item"><a class="nav-link disabled" href="/secret"> Secret <i class="fa fa-user-secret" aria-hidden="true"></i></a></li>
+			                </ul>			   
+			    </div>
+			</div>
+		
+
+		<br> <br>
+		<h1>OWASP Top 10 Mode  &nbsp; &nbsp; &nbsp; <button type="button" class="btn btn-info"><a href="/ctf" style="color:#fff">CTF Mode</a></button></h1> 
+		<hr>
+
+		<div class="container">
+		<h2> Pixi Cheatsheet </h2> 
+		<div class="row">
+			<div class="col-6">
+				<h3>A1-Injection</h3>
+				<p>Injection flaws, such as SQL, OS, XXE, and LDAP injection occur when untrusted data is sent to an interpreter as part of a command or query. The attacker’s hostile data can trick the interpreter into executing unintended commands or accessing data without proper authorization. </p>
+			</div>
+			<div class="col-6">
+				<p> Pixi uses MongoDB/Node/Express.js/Angular, certain fields allow for injection due to lack of user input validation and sanitization.  Possible options for exploiting this vulnerability include replacing password fields with "[$ne]=", which would match with any field that is not a null.  This means if you are looking for a user with a password that is “not null”, you will always receive a match, making that request "always true", this returning the record you were seeking. <a href="https://github.com/cr0hn/nosqlinjection_wordlists/blob/master/mongodb_nosqli.txt">NoSQL Injection Wordlist</a>
+			</div>
+		
+		</div>
+			<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A2-Broken Authentication and Session Management</h2>
+				<p>Application functions related to authentication and session management are often implemented incorrectly, allowing attackers to compromise passwords, keys, or session tokens, or to exploit other implementation flaws to assume other users’ identities (temporarily or permanently).</p>
+			</div>
+			<div class="col-6">
+				<p>Pixi does not handle authentication or session management very well, as the JSON Web Tokens (JSW) and session cookies don't time out frequently enough (they last a very long time or do not expire at all).  This means that an attacker can steal a token or session and continue to use it for much longer than they should, opening up many more attack possibilities.  Additionatlly, there is too much data stored in the JSON Web Token.  Paste the token into <a href="https://jwt.io/">https://jwt.io/</a> to see how easy it is to decode this information.   Also, the server.conf file leaks the secret key that is used to sign sessions and tokens.  Pixi also has no rate-limiting on the API, which means you can brute-force usernames and passwords</p>
+			</div>
+			
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A3-Cross-Site Scripting (XSS)</h2>
+				<p>XSS flaws occur whenever an application includes untrusted data in a new web page without proper validation or escaping, or updates an existing web page with user supplied data using a browser API that can create JavaScript. XSS allows attackers to execute scripts in the victim’s browser which can hijack user sessions, deface web sites, or redirect the user to malicious sites.</p>
+			</div>
+			<div class="col-6">
+				<p>Pixi’s search field explicity disabled Angular's <a href="https://docs.angularjs.org/api/ng/service/$sce">Strict Contextual Escaping</a> which removes proper input validation and sanitization, meaning that a malicious user could put javascript into the search field and potentially have it execute in the browser, 'reflecting' back at the user.  This sort of vulnerability would be ideal to use as part of a social engineering attack on an unsuspecting victim, or to steal session/cookie information.  Also, the login field allow for Angular template injection since the username is reflected back onto the page. See <a href="http://blog.portswigger.net/2016/01/xss-without-html-client-side-template.html"> http://blog.portswigger.net/2016/01/xss-without-html-client-side-template.html</a> for more information.</p>
+			</div>
+			
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A4-Broken Access Control</h2>
+				<p>Restrictions on what authenticated users are allowed to do are not properly enforced. Attackers can exploit these flaws to access unauthorized functionality and/or data, such as access other users' accounts, view sensitive files, modify other users’ data, change access rights, etc.</p>
+			</div>
+			<div class="col-6">
+				<p> Pixi doesn't always perform the right user verification checks on certain Web &amp; API requests.  Some requests will allow you to view, edit and delete items that don't belong to the user.</p>
+
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A5-Security Misconfiguration</h2>
+				<p>Good security requires having a secure configuration defined and deployed for the application, frameworks, application server, web server, database server, platform, etc. Secure settings should be defined, implemented, and maintained, as defaults are often insecure. Additionally, software should be kept up to date.</p>
+			</div>
+			<div class="col-6">
+				<p> Pixi is horribly mis-configured.  MongoDB has both the REST and HTTP interface ports enabled which allows full database access on ports 28017 and 27017.  This was used in real life as a <a href="https://nakedsecurity.sophos.com/2017/01/11/thousands-of-mongodb-databases-compromised-and-held-to-ransom/"> ransomware attack </a> against vulnerable MongoDB servers.  Pixi also has sensitive files placed in public directories and has an unprotected admin section, since it only enforces a RegEx check on <code>?!\/admin)</code> lower-cased admin, ADMIN will allow you access to the page.  Pixi also allows arbitrary file uploads. </p>
+
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A6-Sensitive Data Exposure</h2>
+				<p>Many web applications and APIs do not properly protect sensitive data, such as financial, healthcare, and PII. Attackers may steal or modify such weakly protected data to conduct credit card fraud, identity theft, or other crimes. Sensitive data deserves extra protection such as encryption at rest or in transit, as well as special precautions when exchanged with the browser.</p>
+			</div>
+			<div class="col-6">
+			<p>When attempting to view the "secret page" an error is thrown, which gives entirely too much information the user.  It explains that server.conf is not a function, which may inspire a user to follow that link, which would reward them with administrative credentials.  This is the most severe kind of sensitive data exposure, as if someone has your administrative credentials they would have complete control over your system.</p>
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A7-Insufficient Attack Protection</h2>
+				<p>The majority of applications and APIs lack the basic ability to detect, prevent, and respond to both manual and automated attacks. Attack protection goes far beyond basic input validation and involves automatically detecting, logging, responding, and even blocking exploit attempts. Application owners also need to be able to deploy patches quickly to protect against attacks.</p>
+			</div>
+			<div class="col-6">
+				<p>Pixi is not protected by a WAF (Web Application Firewall) or a RASP (Runtime Application Self-Protection Security), and therefore does not have boundary protection.  Pixi also does not have code to detect or protect itself from automated and/or persistent attacks.  If a user were to conduct a brute force attack against Pixi, it has no code or other protective features to stop, slow down or log such an automated aggression, or even a mechanism to alert the system administrator that it is under siege.  This means that a malicious actor would potentially have a theoretically-infinite amount of time to conduct a very messy attack, and still possibly succeed. </p>
+
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A8-Cross-Site Request Forgery (CSRF)</h2>
+				<p>A CSRF attack forces a logged-on victim’s browser to send a forged HTTP request, including the victim’s session cookie and any other automatically included authentication information, to a vulnerable web application. Such an attack allows the attacker to force a victim’s browser to generate requests the vulnerable application thinks are legitimate requests from the victim.</p>
+			</div>
+			<div class="col-6">
+				<p> Pixi uses CSURF module to protect against CSRF attacks on both the DELETE and POST methods.  Pixi allows users to delete photos on GET request as well.  This means an attacker can create a link that an unsuspecting user can click on, which will delete a photo.</p>
+
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A9-Using Components with Known Vulnerabilities</h2>
+					<p>Components, such as libraries, frameworks, and other software modules, run with the same privileges as the application. If a vulnerable component is exploited, such an attack can facilitate serious data loss or server takeover. Applications and APIs using components with known vulnerabilities may undermine application defenses and enable various attacks and impacts.</p>
+			</div>
+			<div class="col-6">
+					<p> Pixi has so many problems, that this is not included, but should a juicy vulnerability surface, we will build it in</p>
+
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-6">
+				<h2>A10-Underprotected APIs</h2>
+				<p>Modern applications often involve rich client applications and APIs, such as JavaScript in the browser and mobile apps, that connect to an API of some kind (SOAP/XML, REST/JSON, RPC, GWT, etc.). These APIs are often unprotected and contain numerous vulnerabilities.</p>
+		</div>
+			<div class="col-6">
+				<p>Pixi was created with the sole purpose of demonstrating A10.  It has multiple API vulnerabilities, they and other are listed on the full <a href="/ctf"> vulnerability list </a>.</p>
+
+			</div>
+		</div>
+		<hr>
+		</div>
+	</body>
+
+
+	<script>
+		var app = angular.module('pixi',['ngSanitize','infinite-scroll' ]).
+		controller('pixiAboutController', function($scope, $http, $sce){
+
+			$scope.user_info = function(){
+				$http.get('/user_info/')
+					.then(function success(response){
+						$scope.user = response.data[0];
+					})		
+			}
+
+		});
+
+	</script>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../css/bootstrap.min.css">
+		<link rel="stylesheet" href="../css/font-awesome.min.css">
+		<style>
+			body {background-color: #eceeef} ;
+		</style>
+	
+	
+		<!-- Latest compiled and minified JavaScript -->
+
+		<script src='../js/jquery.min.js'></script>
+	    <script src="../js/bootstrap.min.js"></script>
+        <script src='../js/angular.min.js'></script>
+        <script type="text/javascript" src='../js/angular-route.js'></script>
+        <script src='../js/angular-sanitize.min.js'></script>
+        <script src='../js/ng-file-upload.min.js'></script>
+        <script src='../js/ng-file-upload-shim.min.js'></script>
+        <script src='../js/ng-infinite-scroll.min.js'></script>
+
+      
+
+		<title>Pixi: Share the $LOVE$</title>
+	</head>
+	<body ng-app='pixi' ng-controller='pixiOtherProfileController'>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-5">
+					<a href="/"><img src="/images/pixi_logo.png"></a>
+				</div>
+							<div class="col-md-7">
+					<br><br><br>	
+
+					
+				
+							<ul class="nav nav-pills nav-fill justify-content-end">
+								<li class="nav-item"> <a class="nav-link" href='/about'>About <i class="fa fa-cogs" aria-hidden="true"></i> </span></a></li>
+				                <li class="nav-item" ><a class="nav-link" href='/pixi'>Share Pictures <i class="fa fa-bullhorn" aria-hidden="true"></i></a></li>
+								<li class="nav-item"><a class="nav-link active bg-info" href='/profile/'{{user._id}}>My Profile <i class="fa fa-user-circle" aria-hidden="true"></i> </a></li>
+				                <li class="nav-item"><a class="nav-link" href='/logout'>Logout <i class="fa fa-sign-out" aria-hidden="true"></i> </a></li> 
+				                <li class="nav=item"><a class="nav-link disabled" href="/secret"> Secret <i class="fa fa-user-secret" aria-hidden="true"></i></a></li>
+			                </ul>
+			     
+			   
+			    </div>
+			</div>
+			<br>
+			<br>
+		
+			<div class="row" data-ng-init="user_info();">
+
+		
+				<div class="col-5">
+
+				<h2> SEARCH USERS </h2>
+
+							<form action='/user_search' method='GET'>
+								  <div class="form-group">
+								    <label for="exampleInputEmail1">Email address</label>
+								    <input type="text" class="form-control form-control-lg" id="user" name="user" aria-describedby="emailHelp" placeholder="Enter email">
+								    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+							</div>
+							</form>
+					<h1> Profile: <i class="fa fa-user" aria-hidden="true"></i> </h1>
+					<h1>  {{ user.name }} </h1>
+					<h6> User class: {{ user.admin }} </h6>
+				</div>
+				<div class="col-4">
+				<br><br>
+					<center><img ng-src= "{{ user.pic }}" width="200" height="200" class="rounded-circle" style="margin:3em"></center>
+					<h6> <center> <i class="fa fa-id-card" aria-hidden="true"></i> {{ user.name }} </center> </h6>
+				</div>	
+			</div>
+			<div class="row">
+				<div class="col-12" data-ng-init="all_photos();">
+					<h1> my photos </h1>
+
+
+				<div class="card-deck">
+				<div class="card col-3" style="margin-bottom: 1em;" ng-repeat="picture in pictures">
+				    <img class="card-img-top" ng-src="/{{ picture.filename }}" width="235" height="200" style="margin-top:8px;"  alt="Card image cap">
+				    <div class="card-block">
+				      <h4 class="card-title">{{ picture.name}} {{ picture._id }} </h4>
+				      <p class="card-text">{{ picture.description }}
+				      <h2 style="float:left; margin-right:1em;">
+				      	<i ng-click="like_photo(picture._id)" class="fa fa-heart" aria-hidden="true"></i> 
+				      	{{ picture.likes }} </h2> 
+				      <h2>
+				      	<i class="fa fa-btc" ng-click="love_photo(picture._id)" aria-hidden="true"> </i> 
+				      	 {{ picture.money_made | number:2 }}</h2>
+				      	   
+				    </div>
+				</div>
+			</div>
+				</div>
+			</div>
+	  </div>
+
+
+	<script>
+		var app = angular.module('pixi',['ngSanitize','infinite-scroll', 'ngRoute']).
+		controller('pixiOtherProfileController', function($scope, $http, $sce, $location, $routeParams){
+
+			$scope.all_photos = function() {
+				console.log($location.path());
+				var url = $location.absUrl().split('/');
+				var id = (url[url.length - 1]);
+				$http.get('/other_users_pictures/'+id)
+				.then(function success(response) {
+					$scope.pictures = response.data;
+					console.log($scope.pictures);
+				});
+			}
+
+
+			$scope.user_info = function(){
+				console.log($location.path());
+				var url = $location.absUrl().split('/');
+				var id = (url[url.length - 1]);
+				//var paramValue = JSON.stringify($location.search(creator_id));
+				console.log('params ' + JSON.stringify($routeParams));
+				$http.get('/other_users_profile/'+id)
+					.then(function success(response){
+						$scope.user = response.data[0];
+						console.log($scope.user);
+					})		
+			}
+
+			$scope.total_money = function(){
+				$http.get('/admin/total_money/')
+					.then(function success(response){
+						$scope.total_money = response.data;
+					})			
+			}	
+
+			$scope.all_users = function(){
+				$http.get('/admin/all_users/')
+					.then(function success(response){
+						$scope.registered_users = response.data;
+					})				
+			}
+
+			$scope.picture_likes = function(picture_id){
+				//console.log(picture_id)
+				$http.get('/picture/' + picture_id + '/likes')
+					.then(function success(response){
+						console.log(response.data);
+						$scope.individual_picture_likes = response.data;
+					})			
+			}
+		});
+	</script>
+
+	</body>
+</html>

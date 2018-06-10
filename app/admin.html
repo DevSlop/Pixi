@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+	<!-- Latest compiled and minified CSS -->	
+	<link rel="stylesheet" href="../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+	<style>
+		body {background-color: #eceeef} ;
+	</style>
+
+
+	<!-- Optional theme -->
+
+	<!-- Latest compiled and minified JavaScript -->
+
+	<script src='../js/jquery.min.js'></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src='../js/angular.min.js'></script>
+    <script src='../js/angular-sanitize.min.js'></script>
+    <script src='../js/ng-file-upload.min.js'></script>
+    <script src='../js/ng-file-upload-shim.min.js'></script>
+    <script src='../js/ng-infinite-scroll.min.js'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+	<!-- load angular-moment -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/angular-moment/0.9.0/angular-moment.min.js"></script>
+
+
+
+<title>Pixi: Share the $LOVE$</title>
+</head>
+<body>
+<br><be>
+	<div class="container">
+			<div class="row">
+	
+
+				<div class="col-md-12">
+						<h2>ADMIN PANEL<span class="badge badge-info">New</span></h2><br><br><br>
+				<form action='/admin/search' method='GET'>
+				<input type="text" class="form-control form-control-lg" id="search" name="search" aria-describedby="emailHelp" placeholder="Search for users">
+				<button type="submit" class="btn btn-info">User Search</button>
+								   
+				</form>
+				<br><br><br>
+
+				<form action='/admin/likes/search' method='GET'>
+				<input type="text" class="form-control form-control-lg" id="search" name="search" aria-describedby="emailHelp" placeholder="Search for likes">
+				<button type="submit" class="btn btn-info">Likes Search</button>
+								   
+				</form>
+				<br><br><br>
+
+				<form action='/admin/loves/search' method='GET'>
+				<input type="text" class="form-control form-control-lg" id="search" name="search" aria-describedby="emailHelp" placeholder="Search for likes">
+				<button type="submit" class="btn btn-info">Loves Search</button>
+								   
+				</form>
+
+				<br><br><br>
+				<form action='/admin/money' method='POST'>
+					<input type="hidden" class="form-control form-control-lg" id="userid" name="userid" aria-describedby="emailHelp" placeholder="Search for likes">
+					<button type="submit" class="btn btn-info"><i class="fa fa-question-circle" aria-hidden="true"></i></button>			   
+				</form>
+
+				</div>
+		
+
+</body>
+
+<script>
+		var app = angular.module('pixi').
+		config(function($sceProvider) {
+			$sceProvider.enabled(false)
+		}).
+</script>
+</html>

@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../css/bootstrap.min.css">
+		<link rel="stylesheet" href="../css/font-awesome.min.css">
+		<style>
+			body {background-color: #eceeef} ;
+		</style>
+		<!-- Optional theme -->
+	
+		<!-- Latest compiled and minified JavaScript -->
+
+		<script src='../js/jquery.min.js'></script>
+	    <script src="../js/bootstrap.min.js"></script>
+        <script src='../js/angular.min.js'></script>
+        <script src='../js/angular-sanitize.min.js'></script>
+        <script src='../js/ng-file-upload.min.js'></script>
+        <script src='../js/ng-file-upload-shim.min.js'></script>
+        <script src='../js/ng-infinite-scroll.min.js'></script>
+
+		<title>Pixi: Share the $LOVE$</title>
+	</head>
+	<body ng-app='pixi'  ng-controller='pixiAboutController'>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-5">
+					<a href="/"><img src="/images/pixi_logo.png"></a>
+				</div>
+				<div class="col-md-7">
+					<br><br><br>
+					
+				
+							<ul class="nav nav-pills nav-fill justify-content-end" data-ng-init="user_info();">
+								<li class="nav-item"> <a class="nav-link active bg-info" href='/about'>About <i class="fa fa-cogs" aria-hidden="true"></i> </span></a></li>
+				                <li class="nav-item" ><a class="nav-link" href='/pixi'>Share Pictures <i class="fa fa-bullhorn" aria-hidden="true"></i></a></li>
+								<li class="nav-item"><a class="nav-link" href='/profile/{{ user._id }}' >My Profile <i class="fa fa-user-circle" aria-hidden="true"></i> </a></li>
+				                <li class="nav-item"><a class="nav-link" href='/logout'>Logout <i class="fa fa-sign-out" aria-hidden="true"></i> </a></li> 
+				                <li class="nav=item"><a class="nav-link disabled" href="/secret"> Secret <i class="fa fa-user-secret" aria-hidden="true"></i></a></li>
+			                </ul>			   
+			    </div>
+			</div>
+		
+
+		<br> <br>
+		<h1>Pixi CTF Mode  &nbsp; &nbsp; &nbsp; <button type="button" class="btn btn-info"><a href="/about" style="color:#fff">OWASP Top 10 Mode</a></button></h1>
+		<hr>
+
+		<br>
+		<div class="container">
+		<h2> Interactive Scoreboard - Coming Soon </h2>
+		<br>
+		<div class="row">
+		<ul class="list-group">
+		  <li class="list-group-item">Find the Reflected XSS attack <code>&lt;script&gt;alert('hi')&lt;/script&gt;</code></li>
+		  <li class="list-group-item">Find the angular constructor XSS attack</li>
+		  <li class="list-group-item">Make yourself an admin using by mass assigning via the API</li>
+		  <li class="list-group-item">Bypass the admin page restriction on the web app</li>
+		  <li class="list-group-item">Find the actual administrator account in a file</li>
+		  <li class="list-group-item">Find the session secret for JWT/sessions.</li>
+		  <li class="list-group-item">Decode a JWT token</li>
+		  <li class="list-group-item">Delete another users photos</li>
+		  <li class="list-group-item">Change another users profile</li>
+		  <li class="list-group-item">Using CSRF create a link to delete a photo you uploaded</li>
+		  <li class="list-group-item">Log in as another user by bypassing authentication</li>
+		  <li class="list-group-item">Find the Mongo Rest API</li>
+		  <li class="list-group-item">Find the Mongo HTTP interface</li>
+		  <li class="list-group-item">Upload something that is not a photo</li>
+		  <li class="list-group-item">Inject on the admin page to find all users</li>
+		  <li class="list-group-item">Inject on the admin page to find all likes</li>
+		  <li class="list-group-item">Inject on the admin page to find all loves</li>
+		  <li class="list-group-item">Inject on the admin api to find all users</li>
+		  <li class="list-group-item">Inject on the admin api to find all likes</li>
+		  <li class="list-group-item">Inject on the admin api to find all loves</li>
+		  <li class="list-group-item">Give yourself more money!</li>
+		  <li class="list-group-item">Brute Force User/Passwords</li>
+		  <li class="list-group-item">Mongo Race Condition</li>
+		</ul>
+
+
+		</div>
+		</div>			
+	</body>
+
+
+	<script>
+		var app = angular.module('pixi',['ngSanitize','infinite-scroll' ]).
+		controller('pixiAboutController', function($scope, $http, $sce){
+
+			$scope.user_info = function(){
+				$http.get('/user_info/')
+					.then(function success(response){
+						$scope.user = response.data[0];
+					})		
+			}
+
+		});
+
+	</script>
+</html>
