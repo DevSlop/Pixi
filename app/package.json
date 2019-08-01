@@ -31,7 +31,7 @@
     "path": "^0.12.7",
     "random-words": "0.0.1",
     "regex": "^0.1.1",
-    "remarkable": "1.6.2",
+    "remarkable": "1.7.2",
     "request": "^2.81.0",
     "request-json": "^0.6.2",
     "sentencer": "^0.1.5",
