@@ -22,7 +22,7 @@
     "image-downloader": "^3.2.2",
     "jsonwebtoken": "^7.4.1",
     "mongo-sequence": "^0.1.5",
-    "mongodb": "^2.2.11",
+    "mongodb": "^3.1.13",
     "multer": "^1.3.0",
     "nodemon": "^1.11.0",
     "passport": "^0.3.2",
