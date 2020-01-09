@@ -12,7 +12,7 @@ services:
       - "28017"
 
   app:
-    image: deadrobots/pixi:app
+    build: ./app
     ports:
       - "8000:8000"
       - "8090:8090"
