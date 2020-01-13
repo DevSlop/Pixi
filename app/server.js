@@ -269,7 +269,7 @@ api.delete('/api/picture/delete', api_token_check, function(req, res) {
 	else {
 		mongo.connect(function(err, client){
 			var db = client.db();
-			db.collection('pictures').remove( { _id : Number(req.query.picture_id) },
+			db.collection('pictures').deleteOne( { _id : Number(req.query.picture_id) },
 				function(err, delete_photo){
 					if (err) { return err }
 						//console.log(delete_photo);
@@ -300,7 +300,7 @@ api.get('/api/picture/delete/:picture', api_token_check, function(req, res) {
 					console.log(result.creator_id);
 					console.log(req.user.user._id);
 					if (req.user.user._id == result.creator_id) {
-						db.collection('pictures').remove( { _id : Number(req.params.picture_id) },
+						db.collection('pictures').deleteOne( { _id : Number(req.params.picture_id) },
 							function(err, delete_photo){
 								if (err) { return err }
 								if (!delete_photo) {
@@ -463,7 +463,7 @@ api.get('/api/pictures/like', api_token_check, function(req, res){
 					else if(like) { //remove old like
 						console.log('in delete query ' + like);
 						//res.json('already liked');
-						db.collection('likes').remove({
+						db.collection('likes').deleteOne({
 							'user_id': req.user.user._id,
 							'picture_id': req.query.picture_id
 						}, function(err, remove_like){
@@ -751,7 +751,7 @@ api.delete('/api/delete_photo', api_token_check, function(req, res) {
 	else {
 		mongo.connect(function(err, client){
 			var db = client.db();
-			db.collection('pictures').remove( { _id : req.query.picture_id },
+			db.collection('pictures').deleteOne( { _id : req.query.picture_id },
 				function(err, delete_photo){
 					if (err) { return err }
 					if (!delete_photo) {
@@ -775,7 +775,7 @@ api.get('/user_delete_photo/', api_token_check, function(req, res) {
 	else {
 		mongo.connect(function(err, client){
 			var db = client.db();
-			db.collection('pictures').remove( { _id : Number(req.query.picture_id) },
+			db.collection('pictures').deleteOne( { _id : Number(req.query.picture_id) },
 				function(err, delete_photo){
 					if (err) { return err }
 					if (!delete_photo) {
@@ -1509,7 +1509,7 @@ app.get('/like_photo/:picture_id', login_check, function(req, res){
 					else if(like) { //remove old like
 						console.log('in delete query ' + like);
 						//res.json('already liked');
-						db.collection('likes').remove({
+						db.collection('likes').deleteOne({
 							'user_id': req.session.user._id,
 							'picture_id': Number(req.params.picture_id)
 						}, function(err, remove_like){
@@ -1601,7 +1601,7 @@ app.delete('/user_delete_photo/:picture_id', login_check, function(req, res) {
 	else {
 		mongo.connect(function(err, client){
 			var db = client.db();
-			db.collection('pictures').remove( { _id : Number(req.params.picture_id) },
+			db.collection('pictures').deleteOne( { _id : Number(req.params.picture_id) },
 				function(err, delete_photo){
 					if (err) { return err }
 					if (!delete_photo) {
@@ -1632,7 +1632,7 @@ app.get('/user_delete_photo/:picture_id', login_check, function(req, res) {
 					console.log(result.creator_id);
 					console.log(req.session.user._id);
 					if (req.session.user._id == result.creator_id) {
-						db.collection('pictures').remove( { _id : Number(req.params.picture_id) },
+						db.collection('pictures').deleteOne( { _id : Number(req.params.picture_id) },
 							function(err, delete_photo){
 								if (err) { return err }
 								if (!delete_photo) {
