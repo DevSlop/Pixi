@@ -26,8 +26,8 @@ var session = require('client-sessions');
 var csurf = require('csurf');
 var jwt = require('jsonwebtoken');
 
-var dbname = 'mongodb://localhost:27017/Pixidb';
-// var dbname = 'mongodb://pixidb:27017/Pixidb';
+// var dbname = 'mongodb://localhost:27017/Pixidb';
+var dbname = 'mongodb://pixidb:27017/Pixidb';
 var mongo = new MongoClient(dbname, { useNewUrlParser: true, useUnifiedTopology: true });
 var db;
 //create express server and register global middleware
