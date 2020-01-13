@@ -124,7 +124,7 @@ function api_register(user, pass, req, res){
 					  	{ "$inc" : { "seq": 1 } },
 						{ upsert: true, returnOriginal: false },
 					function(err, doc){
-						db.collection('users').insert({ 
+						db.collection('users').insertOne({ 
 							_id: doc.value.seq, 
 							email: user, 
 							password: pass, 
@@ -383,7 +383,7 @@ api.get('/api/pictures/love', api_token_check, function(req, res){
 					console.log('account ' + JSON.stringify(usermoney));
 					if(usermoney.account_balance >= .05) {  //give money to the photo
 						console.log('in create query ' + JSON.stringify(usermoney));
-						db.collection('loves').insert({ 
+						db.collection('loves').insertOne({ 
 							'user_id': req.user.user._id,
 							'picture_id': req.query.picture_id,
 							'amount': .05
@@ -440,7 +440,7 @@ api.get('/api/pictures/like', api_token_check, function(req, res){
 					if(err) { return err };
 					if(!like) {  //brand new like
 						console.log('in create query ' + like);
-						db.collection('likes').insert({ 
+						db.collection('likes').insertOne({ 
 							'user_id': req.user.user._id,
 							'picture_id': req.query.picture_id
 						}, function(err, new_like) {
@@ -508,7 +508,7 @@ api.post('/api/picture/upload', api_token_check, upload.single('file'), function
 						{ "$inc" : { "seq": 1 } },
 						{ upsert: true, returnOriginal: false },
 					function(err, doc) {
-						db.collection('pictures').insert( { 
+						db.collection('pictures').insertOne( { 
 						'_id'	: doc.value.seq,
 						'title' : req.file.originalname, 
 						'image_url': req.file.path,
@@ -1081,7 +1081,7 @@ app.post('/register', function(req, res){
 					  { "$inc" : { "seq": 1 } },
 					  { upsert: true, returnOriginal: false },
 				function(err, doc){
-					db.collection('users').insert({
+					db.collection('users').insertOne({
 						_id : doc.value.seq,
 						email: user,
 						password: req.body.password,
@@ -1143,7 +1143,7 @@ app.post('/upload_photo', login_check, upload.single('file'), function(req, res,
 						  { "$inc" : { "seq": 1 } },
 						  { upsert: true, returnOriginal: false },
 					function(err, doc) {
-						db.collection('pictures').insert( { 
+						db.collection('pictures').insertOne( { 
 						'_id'	: doc.value.seq,
 						'title' : req.file.originalname, 
 						'image_url' : req.file.path,
@@ -1484,7 +1484,7 @@ app.get('/like_photo/:picture_id', login_check, function(req, res){
 					if(err) { return err };
 					if(!like) {  //brand new like
 						console.log('in create query ' + like);
-						db.collection('likes').insert({ 
+						db.collection('likes').insertOne({ 
 							'user_id': req.session.user._id,
 							'picture_id': Number(req.params.picture_id)
 						}, function(err, new_like) {
@@ -1552,7 +1552,7 @@ if(!req.params.picture_id) {
 					console.log('account ' + JSON.stringify(usermoney));
 					if(usermoney.account_balance >= .05) {  //give money to the photo
 						console.log('in create query ' + JSON.stringify(usermoney));
-						db.collection('loves').insert({ 
+						db.collection('loves').insertOne({ 
 							'user_id': req.session.user._id,
 							'picture_id': req.params.picture_id,
 							'amount': .05
