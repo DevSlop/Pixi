@@ -111,12 +111,12 @@ function api_register(user, pass, req, res){
 				name = name.join('');
 				console.log(name);
 				db.collection("counters")
-				  .findAndModify(
+				  .findOneAndUpdate(
 					  	{ "_id": "userid" },
-					  	[], 
 						{ "$inc" : { "seq": 1 } },
+						{ upsert: true, returnOriginal: false },
 					function(err, doc){
-						db.collection('users').insert({ 
+						db.collection('users').insertOne({ 
 							_id: doc.value.seq, 
 							email: user, 
 							password: pass, 
@@ -227,7 +227,7 @@ app.delete('/api/picture/delete', api_token_check, function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-			db.collection('pictures').remove( { _id : Number(req.query.picture_id) },
+			db.collection('pictures').deleteOne( { _id : Number(req.query.picture_id) },
 				function(err, delete_photo){
 					if (err) { return err }
 						//console.log(delete_photo);
@@ -247,7 +247,7 @@ app.get('/api/picture/delete/:picture', function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-			db.collection('pictures').remove( { _id : Number(req.params.picture) },
+			db.collection('pictures').deleteOne( { _id : Number(req.params.picture) },
 				function(err, delete_photo){
 					if (err) { return err }
 					if (!delete_photo) {
@@ -305,7 +305,7 @@ app.get('/api/pictures/love', api_token_check, function(req, res){
 					console.log('account ' + JSON.stringify(usermoney));
 					if(usermoney.account_balance >= .05) {  //give money to the photo
 						console.log('in create query ' + JSON.stringify(usermoney));
-						db.collection('loves').insert({ 
+						db.collection('loves').insertOne({ 
 							'user_id': req.user.user._id,
 							'picture_id': req.query.picture_id,
 							'amount': .05
@@ -321,8 +321,7 @@ app.get('/api/pictures/love', api_token_check, function(req, res){
 								})
 							console.log(req.user.user._id);
 							db.collection('users')
-								.findAndModify( { "_id" : req.user.user._id }, 
-									[],
+								.findOneAndUpdate( { "_id" : req.user.user._id }, 
 									{ "$inc": { "account_balance" :  -.05 } },
 									function(err, userupdate){
 									if(err) { return err }
@@ -360,7 +359,7 @@ app.get('/api/pictures/like', api_token_check, function(req, res){
 					if(err) { return err };
 					if(!like) {  //brand new like
 						console.log('in create query ' + like);
-						db.collection('likes').insert({ 
+						db.collection('likes').insertOne({ 
 							'user_id': req.user.user._id,
 							'picture_id': req.query.picture_id
 						}, function(err, new_like) {
@@ -383,7 +382,7 @@ app.get('/api/pictures/like', api_token_check, function(req, res){
 					else if(like) { //remove old like
 						console.log('in delete query ' + like);
 						//res.json('already liked');
-						db.collection('likes').remove({
+						db.collection('likes').deleteOne({
 							'user_id': req.user.user._id,
 							'picture_id': req.query.picture_id
 						}, function(err, remove_like){
@@ -419,12 +418,12 @@ app.post('/api/picture/upload', api_token_check, upload.single('file'), function
  			var name = randomWords({ exactly: 2 });
 				name = name.join(' ');
  			db.collection("counters")
-				  .findAndModify(
+				  .findOneAndUpdate(
 					  	{ "_id": "pictureid" },
-					  	[], 
 						{ "$inc" : { "seq": 1 } },
+						{ upsert: true, returnOriginal: false },
 					function(err, doc) {
-						db.collection('pictures').insert( { 
+						db.collection('pictures').insertOne( { 
 						'_id'	: doc.value.seq,
 						'title' : req.file.originalname, 
 						'image_url': req.file.path,
@@ -633,7 +632,7 @@ app.delete('/api/delete_photo', api_token_check, function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-			db.collection('pictures').remove( { _id : req.query.picture_id },
+			db.collection('pictures').deleteOne( { _id : req.query.picture_id },
 				function(err, delete_photo){
 					if (err) { return err }
 					if (!delete_photo) {
@@ -654,7 +653,7 @@ app.get('/user_delete_photo/', function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-			db.collection('pictures').remove( { _id : Number(req.query.picture_id) },
+			db.collection('pictures').deleteOne( { _id : Number(req.query.picture_id) },
 				function(err, delete_photo){
 					if (err) { return err }
 					if (!delete_photo) {
