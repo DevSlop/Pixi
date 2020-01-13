@@ -28,8 +28,8 @@ var jwt = require('jsonwebtoken');
 
 var swaggerJSDoc = require('swagger-jsdoc');
 
-var dbname = 'mongodb://localhost:27017/Pixidb';
-// var dbname = 'mongodb://pixidb:27017/Pixidb';
+// var dbname = 'mongodb://localhost:27017/Pixidb';
+var dbname = 'mongodb://pixidb:27017/Pixidb';
 var mongo = new MongoClient(dbname, { useNewUrlParser: true, useUnifiedTopology: true });
 var db;
 
