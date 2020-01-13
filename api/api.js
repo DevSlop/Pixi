@@ -11,12 +11,12 @@ var faker = require('faker');
 
 //database stuff
 var ObjectID = require('mongodb').ObjectID;
-var mongo = require('mongodb').MongoClient;
+var MongoClient = require('mongodb').MongoClient;
 var Logger = require('mongodb').Logger;
 
 //file uploading stuff
 var multer = require('multer');
-var upload = multer ({ dest: 'uploads/'});
+var upload = multer ({ dest: __dirname + '/uploads/'});
 
 //include config file
 var config = require('./server.conf');
@@ -27,6 +27,11 @@ var csurf = require('csurf');
 var jwt = require('jsonwebtoken');
 
 var swaggerJSDoc = require('swagger-jsdoc');
+
+var dbname = 'mongodb://localhost:27017/Pixidb';
+// var dbname = 'mongodb://pixidb:27017/Pixidb';
+var mongo = new MongoClient(dbname, { useNewUrlParser: true, useUnifiedTopology: true });
+var db;
 
 
 //create express server and register global middleware
@@ -51,21 +56,17 @@ app.listen(8080, function(){
 });
 
 // test db connection
-mongo.connect("mongodb://pixidb:27017/Pixidb", function(err, db) {
+mongo.connect(function(err, client) {
   if(!err) {
     console.log("We are connected");
   }
+  db = client.db();
 });
 
 
 // functions
-function api_authenticate(user, pass, req, res){
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
+function api_authenticate(user, pass, req, res){	
 		 		  //Logger.setLevel('debug');
-		if(err){ 
-			console.log('MongoDB connection error...');
-			return err;
-		}
 		console.log('user ' + user + ' pass ' + pass);
 		db.collection('users').findOne({email: user, password: pass },function(err, result){
 			if(err){
@@ -84,19 +85,12 @@ function api_authenticate(user, pass, req, res){
 			
 			else
 				res.status(202).json({message: 'sorry pal, invalid login' });
-		});
-		
-	});	
+		});	
 }
 
 function api_register(user, pass, req, res){
 	console.log('in register');
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 		 		  //Logger.setLevel('debug');
-		if(err){ 
-			console.log('MongoDB connection error...');
-			return err;
-		}
 		console.log('user ' + user + ' pass ' + pass);
 		user = user.toLowerCase();
 		db.collection('users').findOne({ email: user },function(err, result){
@@ -149,7 +143,6 @@ function api_register(user, pass, req, res){
 				} // else
 		
 			}); //find one user	
-		});
 }
 
 
@@ -208,7 +201,6 @@ function random_sentence() {
 // picture related.
 app.get('/api/pictures', api_token_check, function(req, res){
 	console.log('in pics');
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 		db.collection('pictures').find().sort({created_date: -1 }).toArray(function(err, pictures){
 			if(pictures) {
 				console.log(pictures);
@@ -216,13 +208,10 @@ app.get('/api/pictures', api_token_check, function(req, res){
 				
 			}
 		})
-	})
-
 });
 
 app.get('/api/picture/:pictureid', api_token_check, function(req, res){
 	console.log('in pics');
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 		db.collection('pictures').findOne({ _id : Number(req.params.pictureid) }, function(err, picture){
 			if(picture) {
 				console.log(picture);
@@ -230,8 +219,6 @@ app.get('/api/picture/:pictureid', api_token_check, function(req, res){
 				
 			}
 		})
-	})
-
 });
 
 app.delete('/api/picture/delete', api_token_check, function(req, res) {
@@ -240,7 +227,6 @@ app.delete('/api/picture/delete', api_token_check, function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-		mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 			db.collection('pictures').remove( { _id : Number(req.query.picture_id) },
 				function(err, delete_photo){
 					if (err) { return err }
@@ -252,9 +238,7 @@ app.delete('/api/picture/delete', api_token_check, function(req, res) {
 						res.json('Photo ' +  req.query.picture_id + ' deleted!');
 						}		
 				})
-		})
 	}
-
 });
 
 app.get('/api/picture/delete/:picture', function(req, res) {
@@ -263,7 +247,6 @@ app.get('/api/picture/delete/:picture', function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-		mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 			db.collection('pictures').remove( { _id : Number(req.params.picture) },
 				function(err, delete_photo){
 					if (err) { return err }
@@ -276,13 +259,11 @@ app.get('/api/picture/delete/:picture', function(req, res) {
 						console.log(err);
 						}		
 				})
-		})
 	}
 });
 
 app.get('/api/picture/:picture_id/likes', api_token_check, function(req, res){
 	console.log('pic id ' + req.params.picture_id);
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 	db.collection('likes').find({ picture_id : Number(req.params.picture_id)}).toArray(function(err, likes){
 		if(err) { return err };
 
@@ -292,13 +273,11 @@ app.get('/api/picture/:picture_id/likes', api_token_check, function(req, res){
 			
 			}
 		})
-	})
 });
 
 
 app.get('/api/picture/:picture_id/loves', api_token_check, function(req, res){
 	console.log('pic id ' + req.params.picture_id);
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 	db.collection('loves').find({ picture_id : Number(req.params.picture_id)}).toArray(function(err, loves){
 		if(err) { return err };
 
@@ -308,7 +287,6 @@ app.get('/api/picture/:picture_id/loves', api_token_check, function(req, res){
 			
 			}
 		})
-	})
 });
 
 
@@ -320,7 +298,6 @@ app.get('/api/pictures/love', api_token_check, function(req, res){
 	 }
 	 else {
  	//db call- if like exists, delete it, if not exists, add it.
- 	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
  		// see if user has money first.
  			console.log(req.user.user.email);
 			db.collection('users').findOne( { "email" : req.user.user.email }, function(err, usermoney) {					
@@ -364,7 +341,6 @@ app.get('/api/pictures/love', api_token_check, function(req, res){
 					
 				})
 
-			})
  }
 
 });
@@ -377,7 +353,6 @@ app.get('/api/pictures/like', api_token_check, function(req, res){
  }
  else {
  	//db call- if like exists, delete it, if not exists, add it.
- 	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 			db.collection('likes').findOne( { 
 				'user_id' : req.user.user._id, 
 				'picture_id' : req.query.picture_id }, function(err, like) {
@@ -429,8 +404,6 @@ app.get('/api/pictures/like', api_token_check, function(req, res){
 					}
 					
 				})
-
-			})
  }
 });
 app.post('/api/picture/upload', api_token_check, upload.single('file'), function(req, res, next){
@@ -443,7 +416,6 @@ app.post('/api/picture/upload', api_token_check, upload.single('file'), function
  		console.log(req.file);
  		console.log(req.file.originalname)
  		var description = random_sentence();
- 		mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
  			var name = randomWords({ exactly: 2 });
 				name = name.join(' ');
  			db.collection("counters")
@@ -473,8 +445,6 @@ app.post('/api/picture/upload', api_token_check, upload.single('file'), function
 							}
 						}) // photo insert
  				}) //sequence call back
- 			}) //db
- 	
  	} //else
 
  }); 
@@ -508,14 +478,12 @@ app.get('/api/user/info', api_token_check, function(req, res){
 	}
 	else {
 	console.log('user id ' + req.user.user._id);
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 		db.collection('users').find( { _id : req.user.user._id }).toArray(function(err, users){
 			if (err) { return err }
 			if(users) {
 				res.status(200).json(users);
 			}
 		})
-	});
 	}
 
 });
@@ -537,7 +505,6 @@ app.put('/api/user/edit_info', api_token_check, function(req, res){
 	var setObj = { objForUpdate }
 	console.log(setObj);
 
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 		db.collection('users').findOneAndUpdate( 
 			{ _id : Number(req.user.user._id) }, { $set: objForUpdate },function(err, userupdate){
 			if (err) { return err }
@@ -546,13 +513,11 @@ app.put('/api/user/edit_info', api_token_check, function(req, res){
 				res.status(200).json({"message": "User Successfully Updated"});
 			}
 		})
-	});
 	}
 });
 
 app.get('/api/other_user_info', api_token_check, function(req, res){
 	if (!req.query.user_id) { res.status(202).json({ 'error' : ' missing user_id '});}
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 		db.collection('users').find( { _id : Number(req.query.user_id) }).toArray(function(err, user){
 			if (err) { return err }
 			if(user) {
@@ -566,13 +531,10 @@ app.get('/api/other_user_info', api_token_check, function(req, res){
 				
 			}
 		})
-	});
-
 });
 
 
 app.get('/api/user/pictures', api_token_check, function(req, res){
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 	db.collection('pictures').find({ creator_id : req.user.user._id}).toArray(function(err, pictures){
 		if(err) { return err };
 
@@ -582,13 +544,11 @@ app.get('/api/user/pictures', api_token_check, function(req, res){
 			
 			}
 		})
-	})
 });
 
 
 app.get('/api/user/likes', api_token_check, function(req, res){
 	console.log('like id ' + req.user._id);
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 	db.collection('likes').find({ user_id : req.user.user._id}).toArray(function(err, likes){
 		if(err) { return err };
 
@@ -598,12 +558,10 @@ app.get('/api/user/likes', api_token_check, function(req, res){
 			
 			}
 		})
-	})
 });
 
 app.get('/api/user/loves', api_token_check, function(req, res){
 	console.log('love id ' + req.user.user._id);
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 	db.collection('loves').find({ user_id : req.user.user._id}).toArray(function(err, loves){
 		if(err) { return err };
 
@@ -613,7 +571,6 @@ app.get('/api/user/loves', api_token_check, function(req, res){
 			
 			}
 		})
-	})
 });
 
 
@@ -631,17 +588,14 @@ app.get('/about', function(req, res){
 app.get('/api/admin/all_users', api_token_check, function(req, res){
 	//res.json(req.user);
 
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 		db.collection('users').find().toArray(function(err, all_users){
 			if (err) { return err }
 			if(all_users) {
 				res.json(all_users);
 			}
 		})
-	});
 });
 app.get('/api/admin/total_money', api_token_check, function(req, res){
-	mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 		db.collection('loves').find().toArray(function(err, loves){
 			if (err) { return err }
 			if(loves) {
@@ -649,7 +603,6 @@ app.get('/api/admin/total_money', api_token_check, function(req, res){
 				res.json(total);
 			}
 		})
-	});
 })
 
 
@@ -680,7 +633,6 @@ app.delete('/api/delete_photo', api_token_check, function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-		mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 			db.collection('pictures').remove( { _id : req.query.picture_id },
 				function(err, delete_photo){
 					if (err) { return err }
@@ -691,7 +643,6 @@ app.delete('/api/delete_photo', api_token_check, function(req, res) {
 						res.json('Photo ' +  req.query.picture_id + ' deleted!');
 						}		
 				})
-		})
 	}
 
 });
@@ -703,7 +654,6 @@ app.get('/user_delete_photo/', function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-		mongo.connect('mongodb://pixidb:27017/Pixidb', function(err, db){
 			db.collection('pictures').remove( { _id : Number(req.query.picture_id) },
 				function(err, delete_photo){
 					if (err) { return err }
@@ -716,7 +666,6 @@ app.get('/user_delete_photo/', function(req, res) {
 						console.log(err);
 						}		
 				})
-		})
 	}
 });
 
