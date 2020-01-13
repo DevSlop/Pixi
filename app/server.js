@@ -119,10 +119,10 @@ function api_register(user, pass, req, res){
 				name = name.join('');
 				console.log(name);
 				db.collection("counters")
-				  .findAndModify(
+				  .findOneAndUpdate(
 					  	{ "_id": "userid" },
-					  	[], 
-						{ "$inc" : { "seq": 1 } },
+					  	{ "$inc" : { "seq": 1 } },
+						{ upsert: true, returnOriginal: false },
 					function(err, doc){
 						db.collection('users').insert({ 
 							_id: doc.value.seq, 
@@ -390,7 +390,7 @@ api.get('/api/pictures/love', api_token_check, function(req, res){
 						}, function(err, new_love) {
 							db.collection('pictures')
 								.findOneAndUpdate( { _id : Number(req.query.picture_id) }, 
-									{ $inc: { money_made :  .05 } },
+									{ $inc: { money_made :  .05 }, $set: { updated_date: new Date() } },
 									function(err, picupdate){
 									if(err) { return err }
 									else {
@@ -399,8 +399,7 @@ api.get('/api/pictures/love', api_token_check, function(req, res){
 								})
 							console.log(req.user.user._id);
 							db.collection('users')
-								.findAndModify( { "_id" : req.user.user._id }, 
-									[],
+								.findOneAndUpdate( { "_id" : req.user.user._id },
 									{ "$inc": { "account_balance" :  -.05 } },
 									function(err, userupdate){
 									if(err) { return err }
@@ -447,7 +446,7 @@ api.get('/api/pictures/like', api_token_check, function(req, res){
 						}, function(err, new_like) {
 							db.collection('pictures')
 								.findOneAndUpdate( { _id : Number(req.query.picture_id) }, 
-									{ $inc: { likes :  1 } },
+									{ $inc: { likes :  1 }, $set: { updated_date: new Date() } },
 									function(err, picupdate){
 										if(err) { return err }
 										else {
@@ -470,7 +469,7 @@ api.get('/api/pictures/like', api_token_check, function(req, res){
 						}, function(err, remove_like){
 							db.collection('pictures')
 								  .findOneAndUpdate( { _id : Number(req.query.picture_id) }, 
-									{ $inc: { likes :  -1} },
+									{ $inc: { likes :  -1 }, $set: { updated_date: new Date() } },
 									function(err, picupdate){
 									if(err) { return err }
 									else {
@@ -504,10 +503,10 @@ api.post('/api/picture/upload', api_token_check, upload.single('file'), function
 				name = name.join(' ');
 				var db = client.db();
  			db.collection("counters")
-				  .findAndModify(
+				  .findOneAndUpdate(
 					  	{ "_id": "pictureid" },
-					  	[], 
 						{ "$inc" : { "seq": 1 } },
+						{ upsert: true, returnOriginal: false },
 					function(err, doc) {
 						db.collection('pictures').insert( { 
 						'_id'	: doc.value.seq,
@@ -1077,10 +1076,10 @@ app.post('/register', function(req, res){
 				var name = randomWords({ exactly: 2 });
 				name = name.join('');
 				db.collection("counters")
-				  .findAndModify(
-				  	{ "_id": "userid" },
-					[], 
-					{ "$inc" : { "seq": 1 } },
+				  .findOneAndUpdate(
+					  { "_id": "userid" },
+					  { "$inc" : { "seq": 1 } },
+					  { upsert: true, returnOriginal: false },
 				function(err, doc){
 					db.collection('users').insert({
 						_id : doc.value.seq,
@@ -1139,10 +1138,10 @@ app.post('/upload_photo', login_check, upload.single('file'), function(req, res,
 				name = name.join(' ');
 				var db = client.db();
  			db.collection("counters")
-				  .findAndModify(
-					  	{ "_id": "pictureid" },
-					  	[], 
-						{ "$inc" : { "seq": 1 } },
+				  .findOneAndUpdate(
+						  { "_id": "pictureid" },
+						  { "$inc" : { "seq": 1 } },
+						  { upsert: true, returnOriginal: false },
 					function(err, doc) {
 						db.collection('pictures').insert( { 
 						'_id'	: doc.value.seq,
@@ -1560,8 +1559,7 @@ if(!req.params.picture_id) {
 						}, function(err, new_love) {
 							db.collection('pictures')
 								.findOneAndUpdate( { _id : Number(req.params.picture_id) }, 
-									{ $inc: { money_made :  .05 } },
-									{ updated_date : new Date() },
+									{ $inc: { money_made :  .05 }, $set: { updated_date: new Date() } },
 									function(err, picupdate){
 									if(err) { return err }
 									else {
@@ -1570,10 +1568,8 @@ if(!req.params.picture_id) {
 								})
 							console.log(req.session.user._id);
 							db.collection('users')
-								.findAndModify( { "_id" : req.session.user._id }, 
-									[],
+								.findOneAndUpdate( { "_id" : req.session.user._id },
 									{ "$inc": { "account_balance" :  -.05 } },
-									{ updated_date : new Date() },
 									function(err, userupdate){
 									if(err) { return err }
 									else {
