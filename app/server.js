@@ -16,7 +16,7 @@ var Logger = require('mongodb').Logger;
 
 //file uploading stuff
 var multer = require('multer');
-var upload = multer ({ dest: 'uploads/'});
+var upload = multer ({ dest: __dirname + '/uploads/'});
 
 //include config file
 var config = require('./server.conf');
