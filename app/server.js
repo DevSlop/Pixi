@@ -10,7 +10,7 @@ var faker = require('faker');
 
 //database stuff
 var ObjectID = require('mongodb').ObjectID;
-var mongo = require('mongodb').MongoClient;
+var MongoClient = require('mongodb').MongoClient;
 var Logger = require('mongodb').Logger;
 
 
@@ -28,6 +28,7 @@ var jwt = require('jsonwebtoken');
 
 var dbname = 'mongodb://localhost:27017/Pixidb';
 // var dbname = 'mongodb://pixidb:27017/Pixidb';
+var mongo = new MongoClient(dbname, { useNewUrlParser: true, useUnifiedTopology: true });
 //create express server and register global middleware
 var api = express();
 api.use(bodyParser.json());	
@@ -50,7 +51,7 @@ api.listen(8090, function(){
 });
 
 // test db connection
-mongo.connect(dbname, function(err, client) {
+mongo.connect(function(err, client) {
   if(!err) {
     console.log("We are connected");
   }
@@ -59,7 +60,7 @@ mongo.connect(dbname, function(err, client) {
 
 // functions
 function api_authenticate(user, pass, req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		 		  //Logger.setLevel('debug');
 		if(err){ 
 			console.log('MongoDB connection error...');
@@ -91,7 +92,7 @@ function api_authenticate(user, pass, req, res){
 
 function api_register(user, pass, req, res){
 	console.log('in register');
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		 		  //Logger.setLevel('debug');
 		if(err){ 
 			console.log('MongoDB connection error...');
@@ -207,7 +208,7 @@ function random_sentence() {
 api.get('/api/search', function(req, res){
 	//console.log('in search ' + req.query.query);
 	if(req.query.query) {
-		mongo.connect(dbname, function(err, client){
+		mongo.connect(function(err, client){
 			var db = client.db();
 		db.collection('pictures').find({ $text : { $search: req.query.query } }) .toArray(function(err, search){
 			if(err) { return err };
@@ -232,7 +233,7 @@ api.get('/api/search', function(req, res){
 // picture related.
 api.get('/api/pictures', api_token_check, function(req, res){
 	console.log('in pics');
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('pictures').find().sort({created_date: -1 }).toArray(function(err, pictures){
 			if(pictures) {
@@ -247,7 +248,7 @@ api.get('/api/pictures', api_token_check, function(req, res){
 
 api.get('/api/picture/:pictureid', api_token_check, function(req, res){
 	console.log('in pics');
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('pictures').findOne({ _id : Number(req.params.pictureid) }, function(err, picture){
 			if(picture) {
@@ -266,7 +267,7 @@ api.delete('/api/picture/delete', api_token_check, function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-		mongo.connect(dbname, function(err, client){
+		mongo.connect(function(err, client){
 			var db = client.db();
 			db.collection('pictures').remove( { _id : Number(req.query.picture_id) },
 				function(err, delete_photo){
@@ -291,7 +292,7 @@ api.get('/api/picture/delete/:picture', api_token_check, function(req, res) {
 	}
 	else {
 
-		mongo.connect(dbname, function(err, client){
+		mongo.connect(function(err, client){
 			var db = client.db();
 			db.collection('pictures').findOne({ _id: Number(req.params.picture) },
 				function(err, result) {
@@ -332,7 +333,7 @@ api.get('/api/picture/:picture_id/likes', api_token_check, function(req, res){
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('likes').find({ picture_id : Number(req.params.picture_id)}).toArray(function(err, likes){
 		if(err) { return err };
@@ -350,7 +351,7 @@ api.get('/api/picture/:picture_id/likes', api_token_check, function(req, res){
 
 api.get('/api/picture/:picture_id/loves', api_token_check, function(req, res){
 	console.log('pic id ' + req.params.picture_id);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('loves').find({ picture_id : Number(req.params.picture_id)}).toArray(function(err, loves){
 		if(err) { return err };
@@ -373,7 +374,7 @@ api.get('/api/pictures/love', api_token_check, function(req, res){
 	 }
 	 else {
  	//db call- if like exists, delete it, if not exists, add it.
- 	mongo.connect(dbname, function(err, client){
+ 	mongo.connect(function(err, client){
 		var db = client.db();
  		// see if user has money first.
  			console.log(req.user.user.email);
@@ -431,7 +432,7 @@ api.get('/api/pictures/like', api_token_check, function(req, res){
  }
  else {
  	//db call- if like exists, delete it, if not exists, add it.
- 	mongo.connect(dbname, function(err, client){
+ 	mongo.connect(function(err, client){
 		var db = client.db();
 			db.collection('likes').findOne( { 
 				'user_id' : req.user.user._id, 
@@ -498,7 +499,7 @@ api.post('/api/picture/upload', api_token_check, upload.single('file'), function
  		console.log(req.file);
  		console.log(req.file.originalname)
  		var description = random_sentence();
- 		mongo.connect(dbname, function(err, client){
+ 		mongo.connect(function(err, client){
  			var name = randomWords({ exactly: 2 });
 				name = name.join(' ');
 				var db = client.db();
@@ -564,7 +565,7 @@ api.get('/api/user/info', api_token_check, function(req, res){
 	}
 	else {
 	console.log('user id ' + req.user.user._id);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').find( { _id : req.user.user._id }).toArray(function(err, users){
 			if (err) { return err }
@@ -594,7 +595,7 @@ api.put('/api/user/edit_info', api_token_check, function(req, res){
 	var setObj = { objForUpdate }
 	console.log(setObj);
 
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').findOneAndUpdate( 
 			{ _id : Number(req.user.user._id) }, { $set: objForUpdate },function(err, userupdate){
@@ -610,7 +611,7 @@ api.put('/api/user/edit_info', api_token_check, function(req, res){
 
 api.get('/api/other_user_info', api_token_check, function(req, res){
 	if (!req.query.user_id) { res.status(202).json({ 'error' : ' missing user_id '});}
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').find( { _id : Number(req.query.user_id) }).toArray(function(err, user){
 			if (err) { return err }
@@ -631,7 +632,7 @@ api.get('/api/other_user_info', api_token_check, function(req, res){
 
 
 api.get('/api/user/pictures', api_token_check, function(req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('pictures').find({ creator_id : req.user.user._id}).toArray(function(err, pictures){
 		if(err) { return err };
@@ -648,7 +649,7 @@ api.get('/api/user/pictures', api_token_check, function(req, res){
 
 api.get('/api/user/likes', api_token_check, function(req, res){
 	console.log('like id ' + req.user._id);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('likes').find({ user_id : req.user.user._id}).toArray(function(err, likes){
 		if(err) { return err };
@@ -664,7 +665,7 @@ api.get('/api/user/likes', api_token_check, function(req, res){
 
 api.get('/api/user/loves', api_token_check, function(req, res){
 	console.log('love id ' + req.user.user._id);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('loves').find({ user_id : req.user.user._id}).toArray(function(err, loves){
 		if(err) { return err };
@@ -693,7 +694,7 @@ api.get('/about', function(req, res){
 api.get('/api/admin/all_users', api_token_check, function(req, res){
 	//res.json(req.user);
 
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').find().toArray(function(err, all_users){
 			if (err) { return err }
@@ -704,7 +705,7 @@ api.get('/api/admin/all_users', api_token_check, function(req, res){
 	});
 });
 api.get('/api/admin/total_money', api_token_check, function(req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('loves').find().toArray(function(err, loves){
 			if (err) { return err }
@@ -749,7 +750,7 @@ api.delete('/api/delete_photo', api_token_check, function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-		mongo.connect(dbname, function(err, client){
+		mongo.connect(function(err, client){
 			var db = client.db();
 			db.collection('pictures').remove( { _id : req.query.picture_id },
 				function(err, delete_photo){
@@ -773,7 +774,7 @@ api.get('/user_delete_photo/', api_token_check, function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-		mongo.connect(dbname, function(err, client){
+		mongo.connect(function(err, client){
 			var db = client.db();
 			db.collection('pictures').remove( { _id : Number(req.query.picture_id) },
 				function(err, delete_photo){
@@ -866,7 +867,7 @@ app.listen(8000, function(){
 });
 
 //mongo.connect("mongodb://pixidb:27017/Pixidb", function(err, client) {
-mongo.connect(dbname, function(err, client) {
+mongo.connect(function(err, client) {
   if(!err) {
     console.log("We are connected");
   }
@@ -875,7 +876,7 @@ mongo.connect(dbname, function(err, client) {
 
 function app_authenticate(user, pass, req, res){
 	console.log(user);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		if(err){ return err; }
 		
 		user = user.toLowerCase();
@@ -958,7 +959,7 @@ app.get('/admin/', function(req, res){
 
 app.get('/admin/users/search', function(req, res){
 	console.log(req.query.search);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		//db.collection('users').find({ $text : { $search: req.query.search} }) .toArray(function(err, search){
 		db.collection('users').find( {$or: [ { name: req.query.search }, { email : req.query.search } ] } ).toArray(function(err, search){
@@ -981,7 +982,7 @@ app.get('/admin/users/search', function(req, res){
 
 app.get('/admin/likes/search', function(req, res){
 	console.log(req.query.search);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		//db.collection('users').find({ $text : { $search: req.query.search} }) .toArray(function(err, search){
 		db.collection('likes').find( {$or: [ { picture_id: req.query.search }, { user_id : req.query.search } ] } ).toArray(function(err, search){
@@ -1004,7 +1005,7 @@ app.get('/admin/likes/search', function(req, res){
 
 app.get('/admin/loves/search', function(req, res){
 	console.log(req.query.search);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		//db.collection('users').find({ $text : { $search: req.query.search} }) .toArray(function(err, search){
 		db.collection('likes').find( {$or: [ { picture_id: req.query.search }, { user_id : req.query.search } ] } ).toArray(function(err, search){
@@ -1029,7 +1030,7 @@ app.get('/admin/loves/search', function(req, res){
 app.post('/admin/money', function(req, res){
 
 	console.log(req.body.userid)
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	//db.collection('users').find({ $text : { $search: req.query.search} }) .toArray(function(err, search){
 	//db.collection('users').find( {email : req.query.search } ).toArray(function(err, search){
@@ -1056,7 +1057,7 @@ app.post('/admin/money', function(req, res){
 app.post('/register', function(req, res){
 
   if ((req.body.email) && (req.body.password)) {
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		if(err){ 
 			console.log('MongoDB connection error...');
 			return err;
@@ -1133,7 +1134,7 @@ app.post('/upload_photo', login_check, upload.single('file'), function(req, res,
  		console.log(description);
 
  		//res.json()
- 		mongo.connect(dbname, function(err, client){
+ 		mongo.connect(function(err, client){
  			var name = randomWords({ exactly: 2 });
 				name = name.join(' ');
 				var db = client.db();
@@ -1177,7 +1178,7 @@ app.post('/upload_photo', login_check, upload.single('file'), function(req, res,
 
 app.get('/search', function(req, res){
 	console.log('in search ' + req.query.query);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('pictures').find({ $text : { $search: req.query.query } }) .toArray(function(err, search){
 		if(err) { return err };
@@ -1196,7 +1197,7 @@ app.get('/search', function(req, res){
 });
 
 app.get('/user_info', login_check, function(req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').find( { _id : req.session.user._id }).toArray(function(err, users){
 			if (err) { return err }
@@ -1224,7 +1225,7 @@ app.get('/user_profile/:userid', login_check, function(req, res){
 
 app.get('/other_users_profile/:id', login_check, function(req, res) {
 	console.log('in fxn ' + req.params.id);
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').find( { _id : Number(req.params.id) }).toArray(function(err, user){
 			if (err) { return err }
@@ -1244,7 +1245,7 @@ app.get('/other_users_profile/:id', login_check, function(req, res) {
 });
 
 app.get('/other_users_pictures/:id', login_check, function(req, res) {
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('pictures').find( { creator_id : Number(req.params.id) }).toArray(function(err, pictures){
 			if (err) { return err }
@@ -1272,7 +1273,7 @@ app.put('/user_info/:userid', login_check, function(req, res){
 	var setObj = { objForUpdate }
 	console.log(setObj);
 
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').findOneAndUpdate( 
 			{ _id : Number(req.params.userid) }, { $set: objForUpdate },function(err, userupdate){
@@ -1289,7 +1290,7 @@ app.put('/user_info/:userid', login_check, function(req, res){
 
 
 app.get('/user_pictures', login_check, function(req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('pictures').find({ creator_id : req.session.user._id}).toArray(function(err, pictures){
 		if(err) { return err };
@@ -1304,7 +1305,7 @@ app.get('/user_pictures', login_check, function(req, res){
 });
 
 app.get('/user_likes', login_check, function(req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('likes').find({ user_id : req.session.user._id}).toArray(function(err, likes){
 		if(err) { return err };
@@ -1320,7 +1321,7 @@ app.get('/user_likes', login_check, function(req, res){
 
 
 app.get('/user_loves', login_check, function(req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('loves').find({ user_id : req.session.user._id}).toArray(function(err, loves){
 		if(err) { return err };
@@ -1375,7 +1376,7 @@ app.get('/pictures', function(req, res){
 	var json = {};					
 	//queryMongo(res, 'Pixidb', 'pictures',"","")
 	// = function(res, database, collectionName, field, value)
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('pictures').find().sort({created_date: -1 }).toArray(function(err, pictures){
 			if(pictures) {
@@ -1393,7 +1394,7 @@ app.get('/pictures', function(req, res){
 app.get('/admin/all_users', login_check, function(req, res){
 	//res.json(req.user);
 
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').find().toArray(function(err, all_users){
 			if (err) { return err }
@@ -1408,7 +1409,7 @@ app.get('/admin/all_users', login_check, function(req, res){
 app.get('/all_users', login_check, function(req, res){
 	//res.json(req.user);
 
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('users').find().toArray(function(err, all_users){
 			if (err) { return err }
@@ -1419,7 +1420,7 @@ app.get('/all_users', login_check, function(req, res){
 	});
 });
 app.get('/admin/total_money', login_check, function(req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('loves').find().toArray(function(err, loves){
 			if (err) { return err }
@@ -1432,7 +1433,7 @@ app.get('/admin/total_money', login_check, function(req, res){
 })
 
 app.get('/total_money', login_check, function(req, res){
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 		db.collection('loves').find().toArray(function(err, loves){
 			if (err) { return err }
@@ -1447,7 +1448,7 @@ app.get('/total_money', login_check, function(req, res){
 app.get('/picture/:picture_id/likes', login_check, function(req, res){
 	console.log('pic id ' + req.params.picture_id);
 	//alert('ic');
-	mongo.connect(dbname, function(err, client){
+	mongo.connect(function(err, client){
 		var db = client.db();
 	db.collection('likes').find({ picture_id : Number(req.params.picture_id)}).toArray(function(err, likes){
 		if(err) { return err };
@@ -1475,7 +1476,7 @@ app.get('/like_photo/:picture_id', login_check, function(req, res){
  }
  else {
  	//db call- if like exists, delete it, if not exists, add it.
- 	mongo.connect(dbname, function(err, client){
+ 	mongo.connect(function(err, client){
 		var db = client.db();
 			db.collection('likes').findOne( { 
 				'user_id' : req.session.user._id, 
@@ -1543,7 +1544,7 @@ if(!req.params.picture_id) {
  }
  else {
  	//db call- if like exists, delete it, if not exists, add it.
- 	mongo.connect(dbname, function(err, client){
+ 	mongo.connect(function(err, client){
  		// see if user has money first.
 			 console.log(req.session.user.email);
 			 var db = client.db();
@@ -1602,7 +1603,7 @@ app.delete('/user_delete_photo/:picture_id', login_check, function(req, res) {
 		res.json('NO PICTURE SPECIFIED TO DELETE');
 	}
 	else {
-		mongo.connect(dbname, function(err, client){
+		mongo.connect(function(err, client){
 			var db = client.db();
 			db.collection('pictures').remove( { _id : Number(req.params.picture_id) },
 				function(err, delete_photo){
@@ -1627,7 +1628,7 @@ app.get('/user_delete_photo/:picture_id', login_check, function(req, res) {
 	}
 	else {
 
-		mongo.connect(dbname, function(err, client){
+		mongo.connect(function(err, client){
 			var db = client.db();
 			db.collection('pictures').findOne({ _id: Number(req.params.picture_id) },
 				function(err, result) {
