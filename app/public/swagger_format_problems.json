@@ -5,7 +5,8 @@
         "version": "1.0.0",
         "title": "Pixi App API",
         "contact": {
-            "email": "nicole.becher@owasp.org"
+            "email": "tom@x yz.com",
+            "url": "!! weqwe.ccc"
         },
         "license": {
             "name": "Apache 2.0",
@@ -39,7 +40,8 @@
                         "in": "query",
                         "description": "JWT token",
                         "type": "string",
-                        "required": true
+                        "required": false,
+                        "description2": "Token"
                     },
                     {
                         "in": "header",
@@ -93,9 +95,9 @@
                     {
                         "in": "path",
                         "name": "picture_id",
+                        "type": "integer",
                         "description": "ID of picture",
-                        "required": true,
-                        "type": "integer"
+                        "required": true
                     }
                 ],
                 "operationId": "useruploadedpictures",
@@ -887,7 +889,7 @@
             }
         }
     },
-    "host": "104.131.115.192:8090",
+    "host": "10  4.131.115.19!2:8090",
     "basePath": "/",
     "schemes": [
         "http"
