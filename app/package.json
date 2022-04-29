@@ -10,7 +10,7 @@
   "author": "nicole becher",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.4.1",
+    "async": "^2.6.4",
     "body-parser": "^1.15.2",
     "client-sessions": "^0.7.0",
     "cookie-parser": "^1.4.3",
