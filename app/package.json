@@ -16,7 +16,7 @@
     "cookie-parser": "^1.4.3",
     "csurf": "^1.9.0",
     "download": "^6.2.3",
-    "express": "^4.14.0",
+    "express": "^4.17.3",
     "express-unless": "^0.3.0",
     "faker": "^4.1.0",
     "image-downloader": "^3.2.2",
